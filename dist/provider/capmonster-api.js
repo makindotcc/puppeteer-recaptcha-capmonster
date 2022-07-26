@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 class CapMonster {
     constructor(clientKey, opts) {
-        this.hasProxy = () => this.opts.proxyConfig != null;
+        this.hasProxy = () => { var _a; return (_a = this.opts) === null || _a === void 0 ? void 0 : _a.proxyConfig; };
         this.setApiKey = (apiKey) => (this.clientKey = apiKey);
         this.getBalance = () => this.$http.post("/getBalance", {
             clientkey: this.clientKey
@@ -20,14 +20,14 @@ class CapMonster {
             var _a;
             let solved = false;
             let retries = 0;
-            let proxyConfig = this.opts.proxyConfig != null ? this.proxyConfigDTO(this.opts.proxyConfig) : null;
+            let proxyConfig = this.hasProxy() ? this.proxyConfigDTO(this.opts.proxyConfig) : null;
             const response = await this.$http.post("/createTask", {
                 clientKey: this.clientKey,
                 task: {
                     type: method,
                     websiteURL: websiteURL,
                     websiteKey: websiteKey,
-                    ...proxyConfig,
+                    ...proxyConfig
                 }
             });
             while (!solved) {
@@ -55,7 +55,7 @@ class CapMonster {
             proxyAddress: config.address,
             proxyPort: config.port,
             proxyLogin: config.login,
-            proxyPassword: config.password,
+            proxyPassword: config.password
         });
         if (!opts) {
             this.opts = {

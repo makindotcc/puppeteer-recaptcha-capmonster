@@ -6,7 +6,7 @@ declare class CapMonster {
     recognizingThreshold: number;
     $http: AxiosInstance;
     constructor(clientKey?: string, opts?: types.CapMonsterOptions);
-    hasProxy: () => boolean;
+    hasProxy: () => types.ProxyConfig;
     setApiKey: (apiKey: string) => string;
     getBalance: () => Promise<AxiosResponse<types.CapMonsterApiBalanceResult>>;
     createTask: (task?: {}) => Promise<AxiosResponse<types.CapMonsterApiCreateTaskResult>>;
