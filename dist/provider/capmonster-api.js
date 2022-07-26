@@ -63,6 +63,9 @@ class CapMonster {
                 retries: 50
             };
         }
+        else {
+            this.opts = opts;
+        }
         this.clientKey = clientKey;
         this.$http = axios_1.default.create({ baseURL: "https://api.capmonster.cloud" });
     }
