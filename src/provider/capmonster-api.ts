@@ -16,6 +16,8 @@ class CapMonster {
 				pollingInterval: 2000,
 				retries: 50
 			};
+		} else {
+			this.opts = opts;
 		}
 
 		this.clientKey = clientKey;
