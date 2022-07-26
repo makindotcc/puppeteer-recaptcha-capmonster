@@ -10,19 +10,26 @@ const debug = (0, debug_1.default)(`puppeteer-extra-plugin:recaptcha-capmonster:
 const secondsBetweenDates = (before, after) => (after.getTime() - before.getTime()) / 1000;
 class CapMonsterProvider {
     constructor(solver) {
-        this.decodeRecaptchaAsync = async (token, vendor, sitekey, url) => {
+        this.decodeRecaptchaAsync = async (token, captcha) => {
             return new Promise((resolve) => {
                 const cb = (err, result) => resolve({ err, result });
                 try {
                     this.solver.setApiKey(token);
-                    let method = "NoCaptchaTask";
-                    if (vendor === "hcaptcha") {
+                    let method = "";
+                    if (captcha.isEnterprise) {
+                        method = "RecaptchaV2EnterpriseTask";
+                        if (!this.solver.hasProxy()) {
+                            method += "Proxyless";
+                        }
+                    }
+                    else if (captcha._vendor === "hcaptcha") {
                         method = "HCaptchaTask";
                     }
-                    if (!this.solver.hasProxy()) {
-                        method += "Proxyless";
+                    else {
+                        method = "NoCaptchaTask";
                     }
-                    this.solver.decodeReCaptcha(method, url, sitekey, cb);
+                    debug("Decoding captcha...", method, captcha);
+                    this.solver.decodeReCaptcha(method, captcha.url, captcha.sitekey, cb);
                 }
                 catch (error) {
                     return resolve({ err: error });
@@ -45,7 +52,7 @@ class CapMonsterProvider {
                 solution.id = captcha.id;
                 solution.requestAt = new Date();
                 debug("Requesting solution..", solution);
-                const { err, result } = await this.decodeRecaptchaAsync(token, captcha._vendor, captcha.sitekey, captcha.url);
+                const { err, result } = await this.decodeRecaptchaAsync(token, captcha);
                 debug("Got response", { err, result });
                 if (err)
                     throw new Error(`${exports.PROVIDER_ID} error: ${err}`);
