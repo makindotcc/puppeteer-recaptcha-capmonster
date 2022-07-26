@@ -15,19 +15,7 @@ class CapMonsterProvider {
                 const cb = (err, result) => resolve({ err, result });
                 try {
                     this.solver.setApiKey(token);
-                    let method = "";
-                    if (captcha.isEnterprise) {
-                        method = "RecaptchaV2EnterpriseTask";
-                        if (!this.solver.hasProxy()) {
-                            method += "Proxyless";
-                        }
-                    }
-                    else if (captcha._vendor === "hcaptcha") {
-                        method = "HCaptchaTask";
-                    }
-                    else {
-                        method = "NoCaptchaTask";
-                    }
+                    let method = captcha._vendor === "hcaptcha" ? "HCaptchaTask" : "NoCaptchaTask";
                     debug("Decoding captcha...", method, captcha);
                     this.solver.decodeReCaptcha(method, captcha.url, captcha.sitekey, cb);
                 }
