@@ -17,24 +17,26 @@ export default class CapMonsterProvider {
 
 	private decodeRecaptchaAsync = async (
 		token: string,
-		vendor: types.CaptchaVendor,
-		sitekey: string,
-		url: string
+		captcha: types.CaptchaInfo,
 	): Promise<types.DecodeRecaptchaAsyncResult> => {
 		return new Promise((resolve) => {
 			const cb = (err: any, result: any) => resolve({ err, result });
 			try {
 				this.solver.setApiKey(token);
 
-				let method = "NoCaptchaTask";
-				if (vendor === "hcaptcha") {
+				let method = "";
+				if (captcha.isEnterprise) {
+					method = "RecaptchaV2EnterpriseTask";
+					if (!this.solver.hasProxy()) {
+						method += "Proxyless";
+					}
+				} else if (captcha._vendor === "hcaptcha") {
 					method = "HCaptchaTask";
+				} else {
+					method = "NoCaptchaTask";
 				}
-				if (!this.solver.hasProxy()) {
-					method += "Proxyless";
-				}
-
-				this.solver.decodeReCaptcha(method, url, sitekey, cb);
+				debug("Decoding captcha...", method, captcha);
+				this.solver.decodeReCaptcha(method, captcha.url, captcha.sitekey, cb);
 			} catch (error) {
 				return resolve({ err: error });
 			}
@@ -58,7 +60,7 @@ export default class CapMonsterProvider {
 			solution.id = captcha.id;
 			solution.requestAt = new Date();
 			debug("Requesting solution..", solution);
-			const { err, result } = await this.decodeRecaptchaAsync(token, captcha._vendor, captcha.sitekey, captcha.url);
+			const { err, result } = await this.decodeRecaptchaAsync(token, captcha);
 			debug("Got response", { err, result });
 			if (err) throw new Error(`${PROVIDER_ID} error: ${err}`);
 			if (!result || !result.text || !result.id) {
